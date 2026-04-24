@@ -1,0 +1,31 @@
+<?php
+
+namespace App\Filament\Resources\StockMovements\Schemas;
+
+use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Schema;
+
+class StockMovementInfolist
+{
+    public static function configure(Schema $schema): Schema
+    {
+        return $schema
+            ->components([
+                TextEntry::make('medicine.name')
+                    ->label('Medicine'),
+                TextEntry::make('type')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'in' => 'success',
+                        'out' => 'danger',
+                        default => 'warning',
+                    }),
+                TextEntry::make('quantity'),
+                TextEntry::make('reference')
+                    ->placeholder('-'),
+                TextEntry::make('created_at')
+                    ->dateTime(),
+            ])
+            ->columns(2);
+    }
+}

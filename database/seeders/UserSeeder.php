@@ -1,0 +1,32 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\Branch;
+use App\Models\User;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
+
+class UserSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     */
+    public function run(): void
+    {
+        $branch = Branch::query()->first() ?? Branch::factory()->create();
+
+        User::query()->updateOrCreate(
+            ['email' => 'admin@pharmacy.test'],
+            [
+                'name' => 'System Admin',
+                'branch_id' => $branch->id,
+                'role' => 'admin',
+                'password' => 'password',
+                'email_verified_at' => now(),
+            ],
+        );
+
+        User::factory()->count(8)->create();
+    }
+}
