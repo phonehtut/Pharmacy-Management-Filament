@@ -3,18 +3,20 @@
 namespace App\Models;
 
 use App\Observers\PurchaseItemObserver;
+use Database\Factories\PurchaseItemFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[ObservedBy([PurchaseItemObserver::class])]
 #[Fillable(['purchase_id', 'medicine_id', 'quantity', 'buy_price', 'expiry_date', 'batch_no'])]
 class PurchaseItem extends Model
 {
-    /** @use HasFactory<\Database\Factories\PurchaseItemFactory> */
-    use HasFactory;
+    /** @use HasFactory<PurchaseItemFactory> */
+    use HasFactory, SoftDeletes;
 
     /**
      * @return array<string, string>

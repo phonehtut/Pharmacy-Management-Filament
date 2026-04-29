@@ -3,8 +3,8 @@
 namespace App\Filament\Resources\Medicines\Schemas;
 
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 
 class MedicineForm
@@ -31,13 +31,19 @@ class MedicineForm
                     ->required()
                     ->maxLength(255),
                 Select::make('dosage_form')
+                    ->label('Type')
                     ->options([
                         'tablet' => 'Tablet',
                         'capsule' => 'Capsule',
                         'syrup' => 'Syrup',
                         'injection' => 'Injection',
                         'cream' => 'Cream',
+                        'eye' => 'Eye',
+                        'nasal' => 'Nasal',
+                        'ice_injection' => 'Ice Injection',
+                        'medical_supplies' => 'Medical Supplies',
                     ])
+                    ->native(false)
                     ->required(),
                 TextInput::make('barcode')
                     ->required()

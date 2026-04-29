@@ -35,6 +35,7 @@ class SuppliersTable
                 //
             ])
             ->defaultSort('id', 'desc')
+            ->deferLoading()
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),

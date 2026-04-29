@@ -60,6 +60,7 @@ class StockTransfersTable
                     ->query(fn (Builder $query): Builder => $query->whereDate('transferred_at', today())),
             ])
             ->defaultSort('transferred_at', 'desc')
+            ->deferLoading()
             ->recordActions([])
             ->toolbarActions([]);
     }

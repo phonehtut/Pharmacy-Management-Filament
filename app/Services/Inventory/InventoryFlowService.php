@@ -206,7 +206,7 @@ class InventoryFlowService
     }
 
     /**
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $attributes
      */
     public function revertPurchaseItem(array $attributes): void
     {
@@ -312,8 +312,84 @@ class InventoryFlowService
         }, attempts: 3);
     }
 
+    public function returnSaleItem(
+        SaleItem $saleItem,
+        int $returnQuantity,
+        ?string $reason = null,
+        ?int $returnedBy = null,
+    ): void {
+        DB::transaction(function () use ($saleItem, $returnQuantity, $reason, $returnedBy): void {
+            $lockedSaleItem = SaleItem::query()
+                ->whereKey($saleItem->getKey())
+                ->lockForUpdate()
+                ->first();
+
+            if (! $lockedSaleItem) {
+                throw ValidationException::withMessages([
+                    'sale_item_id' => 'Sale item not found. Please refresh and try again.',
+                ]);
+            }
+
+            if (($returnQuantity <= 0) || ($returnQuantity > (int) $lockedSaleItem->quantity)) {
+                throw ValidationException::withMessages([
+                    'return_quantity' => "Return quantity must be between 1 and {$lockedSaleItem->quantity}.",
+                ]);
+            }
+
+            $branchId = $this->getSaleBranchId((int) $lockedSaleItem->sale_id);
+
+            $stock = Stock::query()
+                ->where('medicine_id', (int) $lockedSaleItem->medicine_id)
+                ->where('branch_id', $branchId)
+                ->where('batch_no', (string) $lockedSaleItem->batch_no)
+                ->lockForUpdate()
+                ->first();
+
+            if (! $stock) {
+                $stock = Stock::query()->create([
+                    'medicine_id' => (int) $lockedSaleItem->medicine_id,
+                    'branch_id' => $branchId,
+                    'batch_no' => (string) $lockedSaleItem->batch_no,
+                    'expiry_date' => now()->addYear()->toDateString(),
+                    'quantity' => 0,
+                    'buy_price' => (float) $lockedSaleItem->price,
+                    'sell_price' => (float) $lockedSaleItem->price,
+                ]);
+            }
+
+            $stock->quantity += $returnQuantity;
+            $stock->save();
+
+            DB::table('sale_item_returns')->insert([
+                'sale_id' => (int) $lockedSaleItem->sale_id,
+                'sale_item_id' => (int) $lockedSaleItem->getKey(),
+                'medicine_id' => (int) $lockedSaleItem->medicine_id,
+                'quantity' => $returnQuantity,
+                'returned_by' => $returnedBy,
+                'reason' => filled($reason) ? trim($reason) : null,
+                'returned_at' => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            $remainingQuantity = (int) $lockedSaleItem->quantity - $returnQuantity;
+
+            $lockedSaleItem->quantity = max(0, $remainingQuantity);
+            $lockedSaleItem->saveQuietly();
+
+            $this->createMovement(
+                medicineId: (int) $lockedSaleItem->medicine_id,
+                type: 'adjustment',
+                quantity: $returnQuantity,
+                reference: 'sale',
+            );
+
+            $this->syncSaleTotals((int) $lockedSaleItem->sale_id);
+        }, attempts: 3);
+    }
+
     /**
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $attributes
      */
     public function revertSaleItem(array $attributes): void
     {
@@ -351,6 +427,79 @@ class InventoryFlowService
             );
 
             $this->syncSaleTotals((int) $attributes['sale_id']);
+        }, attempts: 3);
+    }
+
+    public function returnPurchaseItem(
+        PurchaseItem $purchaseItem,
+        int $returnQuantity,
+        ?string $reason = null,
+        ?int $returnedBy = null,
+    ): void {
+        DB::transaction(function () use ($purchaseItem, $returnQuantity, $reason, $returnedBy): void {
+            $lockedPurchaseItem = PurchaseItem::query()
+                ->whereKey($purchaseItem->getKey())
+                ->lockForUpdate()
+                ->first();
+
+            if (! $lockedPurchaseItem) {
+                throw ValidationException::withMessages([
+                    'purchase_item_id' => 'Purchase item not found. Please refresh and try again.',
+                ]);
+            }
+
+            if (($returnQuantity <= 0) || ($returnQuantity > (int) $lockedPurchaseItem->quantity)) {
+                throw ValidationException::withMessages([
+                    'return_quantity' => "Return quantity must be between 1 and {$lockedPurchaseItem->quantity}.",
+                ]);
+            }
+
+            $branchId = $this->getPurchaseBranchId((int) $lockedPurchaseItem->purchase_id);
+
+            $stock = $this->findPurchaseStock(
+                medicineId: (int) $lockedPurchaseItem->medicine_id,
+                branchId: $branchId,
+                batchNo: (string) $lockedPurchaseItem->batch_no,
+                expiryDate: $lockedPurchaseItem->expiry_date?->toDateString() ?? now()->toDateString(),
+                forUpdate: true,
+            );
+
+            $availableToReturn = (int) ($stock?->quantity ?? 0);
+
+            if (! $stock || ((int) $stock->quantity < $returnQuantity)) {
+                throw ValidationException::withMessages([
+                    'return_quantity' => "Only {$availableToReturn} unit(s) are currently available to return.",
+                ]);
+            }
+
+            $stock->quantity -= $returnQuantity;
+            $stock->save();
+
+            DB::table('purchase_item_returns')->insert([
+                'purchase_id' => (int) $lockedPurchaseItem->purchase_id,
+                'purchase_item_id' => (int) $lockedPurchaseItem->getKey(),
+                'medicine_id' => (int) $lockedPurchaseItem->medicine_id,
+                'quantity' => $returnQuantity,
+                'returned_by' => $returnedBy,
+                'reason' => filled($reason) ? trim($reason) : null,
+                'returned_at' => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            $remainingQuantity = (int) $lockedPurchaseItem->quantity - $returnQuantity;
+
+            $lockedPurchaseItem->quantity = max(0, $remainingQuantity);
+            $lockedPurchaseItem->saveQuietly();
+
+            $this->createMovement(
+                medicineId: (int) $lockedPurchaseItem->medicine_id,
+                type: 'adjustment',
+                quantity: $returnQuantity,
+                reference: 'purchase',
+            );
+
+            $this->syncPurchaseTotal((int) $lockedPurchaseItem->purchase_id);
         }, attempts: 3);
     }
 

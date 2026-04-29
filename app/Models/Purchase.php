@@ -2,16 +2,23 @@
 
 namespace App\Models;
 
+use Database\Factories\PurchaseFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['supplier_id', 'branch_id', 'invoice_no', 'total_amount', 'purchased_at'])]
+#[Fillable([
+    'supplier_id',
+    'branch_id',
+    'invoice_no',
+    'total_amount',
+    'purchased_at',
+])]
 class Purchase extends Model
 {
-    /** @use HasFactory<\Database\Factories\PurchaseFactory> */
+    /** @use HasFactory<PurchaseFactory> */
     use HasFactory;
 
     /**

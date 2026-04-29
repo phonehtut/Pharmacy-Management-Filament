@@ -2,11 +2,6 @@
 
 namespace App\Filament\Resources\Medicines\RelationManagers;
 
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\CreateAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -19,6 +14,11 @@ use Filament\Tables\Table;
 class StockMovementsRelationManager extends RelationManager
 {
     protected static string $relationship = 'stockMovements';
+
+    public function isReadOnly(): bool
+    {
+        return true;
+    }
 
     public function form(Schema $schema): Schema
     {
@@ -83,18 +83,10 @@ class StockMovementsRelationManager extends RelationManager
             ->filters([
                 //
             ])
-            ->headerActions([
-                CreateAction::make(),
-            ])
+            ->headerActions([])
             ->recordActions([
                 ViewAction::make(),
-                EditAction::make(),
-                DeleteAction::make(),
             ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
-            ]);
+            ->toolbarActions([]);
     }
 }

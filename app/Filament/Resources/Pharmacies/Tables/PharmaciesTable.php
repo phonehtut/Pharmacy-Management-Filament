@@ -35,6 +35,7 @@ class PharmaciesTable
                 //
             ])
             ->defaultSort('id', 'desc')
+            ->deferLoading()
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),

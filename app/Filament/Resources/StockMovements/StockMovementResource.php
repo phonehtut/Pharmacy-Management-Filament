@@ -2,8 +2,6 @@
 
 namespace App\Filament\Resources\StockMovements;
 
-use App\Filament\Resources\StockMovements\Pages\CreateStockMovement;
-use App\Filament\Resources\StockMovements\Pages\EditStockMovement;
 use App\Filament\Resources\StockMovements\Pages\ListStockMovements;
 use App\Filament\Resources\StockMovements\Pages\ViewStockMovement;
 use App\Filament\Resources\StockMovements\Schemas\StockMovementForm;
@@ -15,6 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 use UnitEnum;
 
 class StockMovementResource extends Resource
@@ -53,9 +52,17 @@ class StockMovementResource extends Resource
     {
         return [
             'index' => ListStockMovements::route('/'),
-            'create' => CreateStockMovement::route('/create'),
             'view' => ViewStockMovement::route('/{record}'),
-            'edit' => EditStockMovement::route('/{record}/edit'),
         ];
+    }
+
+    public static function canCreate(): bool
+    {
+        return false;
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return false;
     }
 }

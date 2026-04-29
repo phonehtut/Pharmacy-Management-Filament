@@ -71,6 +71,7 @@ class StocksTable
                     ->query(fn (Builder $query): Builder => $query->whereDate('expiry_date', '<', today())),
             ])
             ->defaultSort('id', 'desc')
+            ->deferLoading()
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),

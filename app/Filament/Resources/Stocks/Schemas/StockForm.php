@@ -31,7 +31,8 @@ class StockForm
                 TextInput::make('quantity')
                     ->required()
                     ->numeric()
-                    ->minValue(0),
+                    ->minValue(0)
+                    ->disabledOn('edit'),
                 TextInput::make('buy_price')
                     ->required()
                     ->numeric()

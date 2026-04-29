@@ -2,10 +2,17 @@
 
 namespace App\Filament\Resources\Sales\Tables;
 
+use App\Filament\Actions\ReturnSaleAction;
+use App\Filament\Exports\SaleDateRangeExporter;
+use App\Filament\Exports\SaleExporter;
+use App\Filament\Resources\Sales\SaleResource;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\EditAction;
+use Filament\Actions\ExportAction;
+use Filament\Actions\Exports\Enums\ExportFormat;
+use Filament\Actions\Exports\Models\Export;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Columns\TextColumn;
@@ -14,7 +21,9 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Torgodly\Html2Media\Actions\Html2MediaAction;
 
 class SalesTable
 {
@@ -69,15 +78,62 @@ class SalesTable
                     }),
             ])
             ->defaultSort('id', 'desc')
+            ->deferLoading()
             ->recordActions([
                 ViewAction::make(),
+                ReturnSaleAction::make(),
                 EditAction::make(),
+                Html2MediaAction::make('print_invoice')
+                    ->label('Voucher')
+                    ->icon('heroicon-o-printer')
+                    ->filename(fn ($record): string => "sale-{$record->id}-voucher")
+                    ->margins(14, 14, 14, 14)
+                    ->preview()
+                    ->savePdf()
+                    ->content(function ($record) {
+                        $sale = $record->loadMissing([
+                            'branch.pharmacy',
+                            'user',
+                            'customer',
+                            'items.medicine',
+                        ]);
+
+                        return view('filament.invoices.sale-voucher', [
+                            'sale' => $sale,
+                        ]);
+                    }),
                 Action::make('add_items')
                     ->label('Items')
                     ->icon('heroicon-o-list-bullet')
-                    ->url(fn ($record): string => \App\Filament\Resources\Sales\SaleResource::getUrl('edit', ['record' => $record]).'#relationManager'),
+                    ->url(fn ($record): string => SaleResource::getUrl('edit', ['record' => $record]).'#relationManager'),
             ])
             ->toolbarActions([
+                ExportAction::make('export_date_range')
+                    ->label('Date Range Export')
+                    ->icon('heroicon-o-calendar-days')
+                    ->exporter(SaleDateRangeExporter::class)
+                    ->formats([ExportFormat::Xlsx])
+                    ->fileName(function (Export $export): string {
+                        $from = Carbon::parse($export->getOptions()['from'] ?? now())->toDateString();
+                        $until = Carbon::parse($export->getOptions()['until'] ?? now())->toDateString();
+
+                        return "sales-{$from}-to-{$until}";
+                    })
+                    ->modifyQueryUsing(function (Builder $query, array $options): Builder {
+                        $from = Carbon::parse($options['from'])->toDateString();
+                        $until = Carbon::parse($options['until'])->toDateString();
+
+                        return $query
+                            ->whereDate('sold_at', '>=', $from)
+                            ->whereDate('sold_at', '<=', $until);
+                    }),
+                ExportAction::make('export_daily')
+                    ->label('Daily Export')
+                    ->icon('heroicon-o-calendar')
+                    ->exporter(SaleExporter::class)
+                    ->formats([ExportFormat::Xlsx])
+                    ->fileName(fn (): string => 'sales-daily-'.now()->toDateString())
+                    ->modifyQueryUsing(fn (Builder $query): Builder => $query->whereDate('sold_at', now()->toDateString())),
                 BulkActionGroup::make([
                     BulkAction::make('safe_delete_sales')
                         ->label('Delete')

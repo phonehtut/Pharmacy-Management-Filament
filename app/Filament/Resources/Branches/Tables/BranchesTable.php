@@ -38,6 +38,7 @@ class BranchesTable
                     ->relationship('pharmacy', 'name'),
             ])
             ->defaultSort('id', 'desc')
+            ->deferLoading()
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),

@@ -20,6 +20,9 @@ class AdminOverview extends StatsOverviewWidget
         $todaySales = (float) Sale::query()
             ->whereDate('sold_at', today())
             ->sum('total');
+        $monthlySales = (float) Sale::query()
+            ->whereBetween('sold_at', [now()->startOfMonth(), now()->endOfMonth()])
+            ->sum('total');
         $todayPurchases = (float) Purchase::query()
             ->whereDate('purchased_at', today())
             ->sum('total_amount');
@@ -43,6 +46,10 @@ class AdminOverview extends StatsOverviewWidget
                 ->descriptionIcon('heroicon-m-arrow-trending-up')
                 ->chart($salesChart)
                 ->color('success'),
+            Stat::make('Monthly Sales', number_format($monthlySales, 2).' MMK')
+                ->description(now()->format('F Y'))
+                ->descriptionIcon('heroicon-m-calendar-days')
+                ->color('primary'),
             Stat::make('Today Purchases', number_format($todayPurchases, 2).' MMK')
                 ->description('Incoming stock value trend')
                 ->descriptionIcon('heroicon-m-arrow-trending-down')

@@ -4,8 +4,84 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "23dae0b3c4b7f1dc5019e8492947a253",
+    "content-hash": "e380bbda1ca0ae0a8d676ace36f4b3f2",
     "packages": [
+        {
+            "name": "azgasim/filament-unsaved-changes-modal",
+            "version": "1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/AzGasim/filament-unsaved-changes-modal.git",
+                "reference": "1df30efe2f964e0a11f35306e24fdb27e8feba47"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/AzGasim/filament-unsaved-changes-modal/zipball/1df30efe2f964e0a11f35306e24fdb27e8feba47",
+                "reference": "1df30efe2f964e0a11f35306e24fdb27e8feba47",
+                "shasum": ""
+            },
+            "require": {
+                "filament/filament": "^5.3.5",
+                "php": "^8.2",
+                "spatie/laravel-package-tools": "^1.15.0"
+            },
+            "require-dev": {
+                "larastan/larastan": "^3.0",
+                "laravel/pint": "^1.0",
+                "orchestra/testbench": "^9.0|^10.0",
+                "pestphp/pest": "^3.7|^4.0",
+                "pestphp/pest-plugin-laravel": "^3.0|^4.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AzGasim\\FilamentUnsavedChangesModal\\FilamentUnsavedChangesModalServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AzGasim\\FilamentUnsavedChangesModal\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Aziz Gasim",
+                    "email": "104441723+AzGasim@users.noreply.github.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Filament plugin: unsaved-changes prompts as Filament modals instead of browser confirm dialogs.",
+            "homepage": "https://github.com/AzGasim/filament-unsaved-changes-modal",
+            "keywords": [
+                "AzGasim",
+                "filament",
+                "filament-plugin",
+                "filament-unsaved-changes-modal",
+                "filamentphp",
+                "laravel",
+                "livewire",
+                "modal",
+                "unsaved-changes",
+                "unsaved-changes-alert"
+            ],
+            "support": {
+                "issues": "https://github.com/AzGasim/filament-unsaved-changes-modal/issues",
+                "source": "https://github.com/AzGasim/filament-unsaved-changes-modal"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/AzGasim",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-04-14T21:01:12+00:00"
+        },
         {
             "name": "blade-ui-kit/blade-heroicons",
             "version": "2.7.0",
@@ -3240,6 +3316,100 @@
                 }
             ],
             "time": "2026-04-02T20:48:35+00:00"
+        },
+        {
+            "name": "marcelorodrigo/filament-barcode-scanner-field",
+            "version": "v1.1.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/marcelorodrigo/filament-barcode-scanner-field.git",
+                "reference": "4847490d89d3e18684d448db6bc0d30624b90b94"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/marcelorodrigo/filament-barcode-scanner-field/zipball/4847490d89d3e18684d448db6bc0d30624b90b94",
+                "reference": "4847490d89d3e18684d448db6bc0d30624b90b94",
+                "shasum": ""
+            },
+            "require": {
+                "filament/forms": "^4.0 || ^5.0",
+                "php": "^8.3",
+                "spatie/laravel-package-tools": "^1.92.7"
+            },
+            "require-dev": {
+                "larastan/larastan": "^3.8",
+                "laravel/pint": "^1.26",
+                "nunomaduro/collision": "^8.8",
+                "orchestra/testbench": "^10.0",
+                "pestphp/pest": "^4.0",
+                "pestphp/pest-plugin-arch": "^4.0",
+                "pestphp/pest-plugin-laravel": "^4.0",
+                "pestphp/pest-plugin-livewire": "^4.0",
+                "phpstan/extension-installer": "^1.4",
+                "phpstan/phpstan-deprecation-rules": "^2.0",
+                "phpstan/phpstan-phpunit": "^2.0",
+                "rector/rector": "^2.3"
+            },
+            "suggest": {
+                "filament/filament": "Required to use this package with Filament admin panels"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "FilamentBarcodeScannerField": "Marcelorodrigo\\FilamentBarcodeScannerField\\Facades\\FilamentBarcodeScannerField"
+                    },
+                    "providers": [
+                        "Marcelorodrigo\\FilamentBarcodeScannerField\\FilamentBarcodeScannerFieldServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Marcelorodrigo\\FilamentBarcodeScannerField\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Marcelo Wiebbelling",
+                    "email": "mrodrigow@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A camera-based barcode and QR code scanner input field for Filament forms. Features a modal interface with real-time scanning.",
+            "homepage": "https://github.com/marcelorodrigo/filament-barcode-scanner-field",
+            "keywords": [
+                "barcode",
+                "barcode-scanner",
+                "camera-scanner",
+                "field",
+                "filament",
+                "filamentphp",
+                "form",
+                "input",
+                "input-field",
+                "laravel",
+                "marcelorodrigo",
+                "qr-code",
+                "qrcode",
+                "scanner"
+            ],
+            "support": {
+                "docs": "https://github.com/marcelorodrigo/filament-barcode-scanner-field#readme",
+                "issues": "https://github.com/marcelorodrigo/filament-barcode-scanner-field/issues",
+                "source": "https://github.com/marcelorodrigo/filament-barcode-scanner-field"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/sponsors/marcelorodrigo",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-02-01T19:34:00+00:00"
         },
         {
             "name": "masterminds/html5",
@@ -7908,6 +8078,65 @@
                 "source": "https://github.com/tijsverkoyen/CssToInlineStyles/tree/v2.4.0"
             },
             "time": "2025-12-02T11:56:42+00:00"
+        },
+        {
+            "name": "torgodly/html2media",
+            "version": "v2.1.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/torgodly/Html2Media.git",
+                "reference": "da2424cd66794482e2b2a7ca628fe99a9b95df0d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/torgodly/Html2Media/zipball/da2424cd66794482e2b2a7ca628fe99a9b95df0d",
+                "reference": "da2424cd66794482e2b2a7ca628fe99a9b95df0d",
+                "shasum": ""
+            },
+            "require": {
+                "filament/filament": "^4.0|^5.0",
+                "php": "^8.1"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Torgodly\\Html2Media\\Html2MediaServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Torgodly\\Html2Media\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Abdullah Alhaj",
+                    "email": "torgodly@gmail.com"
+                }
+            ],
+            "description": "Html2Media is a versatile Laravel package that allows users to convert HTML content into high-quality PDFs with options for either downloading or triggering a print dialog. Ideal for generating documents, invoices, and reports, this package includes configurable settings for file name, page orientation, format, margins, and scale. Html2Media also provides seamless integration with Filament actions, enabling dynamic content rendering in modals and customizable output previews. Whether you need to save a PDF or send it directly to the printer, Html2Media simplifies the process with robust, flexible features.",
+            "keywords": [
+                "documents",
+                "filament",
+                "html-to-pdf",
+                "invoice",
+                "laravel",
+                "pdf",
+                "pdf-generation",
+                "printing",
+                "reporting"
+            ],
+            "support": {
+                "issues": "https://github.com/torgodly/Html2Media/issues",
+                "source": "https://github.com/torgodly/Html2Media/tree/v2.1.2"
+            },
+            "time": "2026-01-24T04:06:26+00:00"
         },
         {
             "name": "ueberdosis/tiptap-php",

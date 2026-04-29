@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\Purchases\Tables;
 
+use App\Filament\Actions\ReturnPurchaseAction;
+use App\Filament\Resources\Purchases\PurchaseResource;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
@@ -15,6 +17,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
+use Torgodly\Html2Media\Actions\Html2MediaAction;
 
 class PurchasesTable
 {
@@ -63,13 +66,33 @@ class PurchasesTable
                     }),
             ])
             ->defaultSort('id', 'desc')
+            ->deferLoading()
             ->recordActions([
                 ViewAction::make(),
+                ReturnPurchaseAction::make(),
                 EditAction::make(),
+                Html2MediaAction::make('print_invoice')
+                    ->label('Print')
+                    ->icon('heroicon-o-printer')
+                    ->filename(fn ($record): string => "purchase-{$record->id}-invoice")
+                    ->margins(14, 14, 14, 14)
+                    ->preview()
+                    ->savePdf()
+                    ->content(function ($record) {
+                        $purchase = $record->loadMissing([
+                            'branch.pharmacy',
+                            'supplier',
+                            'items.medicine',
+                        ]);
+
+                        return view('filament.invoices.purchase-invoice', [
+                            'purchase' => $purchase,
+                        ]);
+                    }),
                 Action::make('add_items')
                     ->label('Items')
                     ->icon('heroicon-o-list-bullet')
-                    ->url(fn ($record): string => \App\Filament\Resources\Purchases\PurchaseResource::getUrl('edit', ['record' => $record]).'#relationManager'),
+                    ->url(fn ($record): string => PurchaseResource::getUrl('edit', ['record' => $record]).'#relationManager'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
