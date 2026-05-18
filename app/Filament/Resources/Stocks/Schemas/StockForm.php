@@ -14,11 +14,13 @@ class StockForm
         return $schema
             ->components([
                 Select::make('medicine_id')
+                    ->native(false)
                     ->relationship('medicine', 'name')
                     ->required()
                     ->searchable()
                     ->preload(),
                 Select::make('branch_id')
+                    ->native(false)
                     ->relationship('branch', 'name')
                     ->required()
                     ->searchable()

@@ -13,6 +13,7 @@ class BranchForm
         return $schema
             ->components([
                 Select::make('pharmacy_id')
+                    ->native(false)
                     ->relationship('pharmacy', 'name')
                     ->searchable()
                     ->preload()

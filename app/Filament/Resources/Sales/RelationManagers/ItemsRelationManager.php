@@ -30,6 +30,7 @@ class ItemsRelationManager extends RelationManager
         return $schema
             ->components([
                 Select::make('medicine_id')
+                    ->native(false)
                     ->relationship('medicine', 'name')
                     ->required()
                     ->live()
@@ -58,6 +59,7 @@ class ItemsRelationManager extends RelationManager
                         }
                     }),
                 Select::make('batch_no')
+                    ->native(false)
                     ->required()
                     ->searchable()
                     ->live()
@@ -163,7 +165,7 @@ class ItemsRelationManager extends RelationManager
             ->where('branch_id', (int) $this->getOwnerRecord()->branch_id)
             ->where('medicine_id', $medicineId)
             ->where('quantity', '>', 0)
-            ->whereDate('expiry_date', '>=', today())
+            ->where('expiry_date', '>=', today()->toDateString())
             ->orderBy('expiry_date')
             ->pluck('batch_no', 'batch_no')
             ->all();
@@ -194,7 +196,7 @@ class ItemsRelationManager extends RelationManager
             ->where('branch_id', (int) $this->getOwnerRecord()->branch_id)
             ->where('medicine_id', $medicineId)
             ->where('quantity', '>', 0)
-            ->whereDate('expiry_date', '>=', today());
+            ->where('expiry_date', '>=', today()->toDateString());
 
         if (filled($batchNo)) {
             $query->where('batch_no', $batchNo);
@@ -220,7 +222,7 @@ class ItemsRelationManager extends RelationManager
         Notification::make()
             ->warning()
             ->title('Low stock alert')
-            ->body("Remaining stock for {$saleItem->medicine->name} is {$remainingQuantity}. Please restock soon.")
+            ->body("Remaining stock for {$saleItem->loadMissing('medicine')->medicine?->name} is {$remainingQuantity}. Please restock soon.")
             ->send();
     }
 }

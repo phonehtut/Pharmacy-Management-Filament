@@ -25,18 +25,19 @@ class StockMovementsRelationManager extends RelationManager
         return $schema
             ->components([
                 Select::make('type')
+                    ->native(false)
                     ->options([
                         'in' => 'In',
                         'out' => 'Out',
                         'adjustment' => 'Adjustment',
                     ])
-                    ->required()
-                    ->native(false),
+                    ->required(),
                 TextInput::make('quantity')
                     ->required()
                     ->numeric()
                     ->minValue(1),
                 Select::make('reference')
+                    ->native(false)
                     ->options([
                         'purchase' => 'Purchase',
                         'sale' => 'Sale',

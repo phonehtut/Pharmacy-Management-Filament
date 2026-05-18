@@ -17,12 +17,14 @@ class SaleItemForm
         return $schema
             ->components([
                 Select::make('sale_id')
+                    ->native(false)
                     ->relationship('sale', 'id')
                     ->required()
                     ->live()
                     ->searchable()
                     ->preload(),
                 Select::make('medicine_id')
+                    ->native(false)
                     ->relationship('medicine', 'name')
                     ->required()
                     ->live()
@@ -52,6 +54,7 @@ class SaleItemForm
                         }
                     }),
                 Select::make('batch_no')
+                    ->native(false)
                     ->required()
                     ->live()
                     ->searchable()

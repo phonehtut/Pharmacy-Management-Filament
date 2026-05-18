@@ -10,31 +10,84 @@
         @push('styles')
             <style>
                 .pos-ui {
-                    --pos-bg: linear-gradient(135deg, #4f46e5 0%, #6d28d9 38%, #7c3aed 100%);
-                    --pos-panel: #f8fafc;
-                    --pos-card: #ffffff;
-                    --pos-border: #dbe2ea;
-                    --pos-text: #0f172a;
-                    --pos-muted: #64748b;
-                    --pos-primary: #4f46e5;
-                    --pos-success: #059669;
-                    --pos-danger: #ef4444;
+                    --pos-bg: transparent;
+                    --pos-panel: transparent;
+                    --pos-card: var(--color-white);
+                    --pos-soft-card: var(--gray-50);
+                    --pos-subtle-card: var(--gray-100);
+                    --pos-border: color-mix(in oklab, var(--gray-950) 12%, transparent);
+                    --pos-text: var(--gray-950);
+                    --pos-muted: var(--gray-500);
+                    --pos-primary: var(--primary-600);
+                    --pos-success: var(--success-600);
+                    --pos-danger: var(--danger-600);
+                    --pos-shell-bg: rgba(245, 248, 252, 0.95);
+                    --pos-shell-border: rgba(255, 255, 255, 0.36);
+                    --pos-toolbar-bg: var(--color-white);
+                    --pos-toolbar-border: color-mix(in oklab, var(--gray-950) 12%, transparent);
+                    --pos-toolbar-text: var(--gray-700);
+                    --pos-toolbar-hover-bg: var(--gray-50);
+                    --pos-toolbar-hover-border: color-mix(in oklab, var(--gray-950) 20%, transparent);
+                    --pos-chip-active-bg: color-mix(in oklab, var(--primary-500) 10%, var(--color-white));
+                    --pos-chip-active-text: var(--primary-700);
+                    --pos-chip-active-border: color-mix(in oklab, var(--primary-600) 35%, transparent);
+                    --pos-danger-soft-bg: color-mix(in oklab, var(--danger-500) 10%, var(--color-white));
+                    --pos-danger-soft-border: color-mix(in oklab, var(--danger-600) 30%, transparent);
+                    --pos-success-soft-bg: color-mix(in oklab, var(--success-500) 10%, var(--color-white));
+                    --pos-success-soft-border: color-mix(in oklab, var(--success-600) 30%, transparent);
+                    --pos-success-soft-text: var(--success-700);
+                    --pos-dashed-border: color-mix(in oklab, var(--gray-950) 20%, transparent);
+                    --pos-shadow-soft: 0 10px 16px rgba(15, 23, 42, 0.08);
                     --pos-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
-                    font-family: "Manrope", "Poppins", "Segoe UI", sans-serif;
-                    border-radius: 18px;
+                    border-radius: 0;
                     background: var(--pos-bg);
-                    padding: 1.15rem;
-                    box-shadow: var(--pos-shadow);
+                    padding: 0;
+                    box-shadow: none;
                     animation: pos-fade-in 340ms ease-out;
-                    min-height: calc(100vh - 6.5rem);
+                    min-height: auto;
+                    color-scheme: light;
+                }
+
+                .dark .pos-ui,
+                [data-theme="dark"] .pos-ui {
+                    --pos-bg: transparent;
+                    --pos-panel: transparent;
+                    --pos-card: var(--gray-900);
+                    --pos-soft-card: color-mix(in oklab, var(--color-white) 5%, transparent);
+                    --pos-subtle-card: color-mix(in oklab, var(--color-white) 7%, transparent);
+                    --pos-border: color-mix(in oklab, var(--color-white) 12%, transparent);
+                    --pos-text: var(--color-white);
+                    --pos-muted: var(--gray-400);
+                    --pos-primary: var(--primary-500);
+                    --pos-success: var(--success-500);
+                    --pos-danger: var(--danger-500);
+                    --pos-shell-bg: rgba(15, 23, 42, 0.86);
+                    --pos-shell-border: rgba(148, 163, 184, 0.25);
+                    --pos-toolbar-bg: var(--gray-900);
+                    --pos-toolbar-border: color-mix(in oklab, var(--color-white) 12%, transparent);
+                    --pos-toolbar-text: var(--gray-200);
+                    --pos-toolbar-hover-bg: color-mix(in oklab, var(--color-white) 8%, transparent);
+                    --pos-toolbar-hover-border: color-mix(in oklab, var(--color-white) 22%, transparent);
+                    --pos-chip-active-bg: color-mix(in oklab, var(--primary-500) 22%, transparent);
+                    --pos-chip-active-text: var(--primary-300);
+                    --pos-chip-active-border: color-mix(in oklab, var(--primary-400) 55%, transparent);
+                    --pos-danger-soft-bg: color-mix(in oklab, var(--danger-500) 18%, transparent);
+                    --pos-danger-soft-border: color-mix(in oklab, var(--danger-400) 50%, transparent);
+                    --pos-success-soft-bg: color-mix(in oklab, var(--success-500) 18%, transparent);
+                    --pos-success-soft-border: color-mix(in oklab, var(--success-400) 50%, transparent);
+                    --pos-success-soft-text: var(--success-300);
+                    --pos-dashed-border: color-mix(in oklab, var(--color-white) 18%, transparent);
+                    --pos-shadow-soft: 0 10px 20px rgba(2, 6, 23, 0.6);
+                    --pos-shadow: 0 18px 40px rgba(2, 6, 23, 0.62);
+                    color-scheme: dark;
                 }
 
                 .pos-shell {
-                    border-radius: 14px;
-                    border: 1px solid rgba(255, 255, 255, 0.36);
-                    background: rgba(245, 248, 252, 0.95);
-                    padding: 0.95rem;
-                    backdrop-filter: blur(8px);
+                    border-radius: 0;
+                    border: 0;
+                    background: transparent;
+                    padding: 0;
+                    backdrop-filter: none;
                 }
 
                 .pos-toolbar {
@@ -51,9 +104,9 @@
                 .pos-toolbar a,
                 .pos-toolbar button {
                     border-radius: 10px;
-                    border: 1px solid #cad4e1;
-                    background: #ffffff;
-                    color: #334155;
+                    border: 1px solid var(--pos-toolbar-border);
+                    background: var(--pos-toolbar-bg);
+                    color: var(--pos-toolbar-text);
                     font-size: 0.72rem;
                     font-weight: 700;
                     padding: 0.4rem 0.62rem;
@@ -67,8 +120,8 @@
 
                 .pos-toolbar a:hover,
                 .pos-toolbar button:hover {
-                    border-color: #8fa6c5;
-                    background: #f8fbff;
+                    border-color: var(--pos-toolbar-hover-border);
+                    background: var(--pos-toolbar-hover-bg);
                 }
 
                 .pos-grid {
@@ -79,20 +132,20 @@
                 }
 
                 .pos-main {
-                    border-radius: 12px;
-                    border: 1px solid var(--pos-border);
+                    border-radius: 0;
+                    border: 0;
                     background: var(--pos-panel);
-                    padding: 0.92rem;
+                    padding: 0;
                 }
 
                 .pos-order {
                     position: sticky;
                     top: 1.2rem;
-                    border-radius: 12px;
-                    border: 1px solid var(--pos-border);
-                    background: #f1f5f9;
-                    padding: 0.88rem;
-                    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+                    border-radius: 0;
+                    border: 0;
+                    background: transparent;
+                    padding: 0;
+                    box-shadow: none;
                 }
 
                 .pos-heading {
@@ -109,7 +162,7 @@
                 }
 
                 .pos-label {
-                    color: #334155;
+                    color: var(--pos-toolbar-text);
                     font-size: 0.77rem;
                     font-weight: 700;
                     margin-bottom: 0.3rem;
@@ -125,8 +178,8 @@
 
                 .pos-kpi {
                     border-radius: 10px;
-                    border: 1px solid #dde6f0;
-                    background: #ffffff;
+                    border: 1px solid var(--pos-border);
+                    background: var(--pos-card);
                     padding: 0.5rem;
                 }
 
@@ -140,7 +193,7 @@
                 }
 
                 .pos-kpi-value {
-                    color: #1e293b;
+                    color: var(--pos-text);
                     font-size: 1rem;
                     font-weight: 800;
                     line-height: 1.15;
@@ -158,9 +211,9 @@
                 }
 
                 .pos-chip {
-                    border: 1px solid #d5dce8;
-                    background: #fff;
-                    color: #334155;
+                    border: 1px solid var(--pos-border);
+                    background: var(--pos-card);
+                    color: var(--pos-toolbar-text);
                     padding: 0.32rem 0.65rem;
                     border-radius: 999px;
                     font-size: 0.71rem;
@@ -170,14 +223,14 @@
                 }
 
                 .pos-chip:hover {
-                    border-color: #a9bad0;
-                    background: #f8fbff;
+                    border-color: var(--pos-toolbar-hover-border);
+                    background: var(--pos-toolbar-hover-bg);
                 }
 
                 .pos-chip.is-active {
-                    border-color: #6366f1;
-                    background: #e0e7ff;
-                    color: #3730a3;
+                    border-color: var(--pos-chip-active-border);
+                    background: var(--pos-chip-active-bg);
+                    color: var(--pos-chip-active-text);
                 }
 
                 .pos-product-grid {
@@ -189,8 +242,8 @@
 
                 .pos-product {
                     border-radius: 10px;
-                    border: 1px solid #d7dee8;
-                    background: #fff;
+                    border: 1px solid var(--pos-border);
+                    background: var(--pos-card);
                     padding: 0.6rem 0.55rem;
                     text-align: center;
                     cursor: pointer;
@@ -199,12 +252,12 @@
 
                 .pos-product:hover {
                     transform: translateY(-1px);
-                    border-color: #8fb2d9;
-                    box-shadow: 0 10px 16px rgba(15, 23, 42, 0.08);
+                    border-color: var(--pos-toolbar-hover-border);
+                    box-shadow: var(--pos-shadow-soft);
                 }
 
                 .pos-product-name {
-                    color: #1f2937;
+                    color: var(--pos-text);
                     font-size: 0.8rem;
                     font-weight: 800;
                     line-height: 1.3;
@@ -212,7 +265,7 @@
                 }
 
                 .pos-product-price {
-                    color: #4f46e5;
+                    color: var(--pos-primary);
                     font-size: 0.95rem;
                     font-weight: 800;
                     line-height: 1.18;
@@ -234,21 +287,26 @@
                 }
 
                 .pos-order-title {
-                    color: #111827;
+                    color: var(--pos-text);
                     font-size: 1.03rem;
                     font-weight: 800;
                 }
 
                 .pos-small {
-                    color: #64748b;
+                    color: var(--pos-muted);
                     font-size: 0.7rem;
                     font-weight: 600;
                 }
 
+                .pos-error-text {
+                    color: var(--pos-danger);
+                    margin-top: 0.25rem;
+                }
+
                 .pos-scanner {
-                    border: 1px solid #d8e0ea;
+                    border: 1px solid var(--pos-border);
                     border-radius: 10px;
-                    background: #fff;
+                    background: var(--pos-card);
                     padding: 0.56rem;
                     margin-top: 0.52rem;
                 }
@@ -257,23 +315,23 @@
                     margin-top: 0.45rem;
                     width: 100%;
                     border-radius: 8px;
-                    border: 1px solid #dbe3ef;
+                    border: 1px solid var(--pos-border);
                 }
 
                 .pos-cart {
                     margin-top: 0.62rem;
                     border-radius: 10px;
-                    border: 1px solid #d6deea;
-                    background: #fff;
+                    border: 1px solid var(--pos-border);
+                    background: var(--pos-card);
                     padding: 0.54rem;
                     max-height: 18.5rem;
                     overflow: auto;
                 }
 
                 .pos-cart-row {
-                    border: 1px solid #dbe3ec;
+                    border: 1px solid var(--pos-border);
                     border-radius: 9px;
-                    background: #f9fbff;
+                    background: var(--pos-subtle-card);
                     padding: 0.5rem;
                 }
 
@@ -289,14 +347,14 @@
                 }
 
                 .pos-cart-name {
-                    color: #1f2937;
+                    color: var(--pos-text);
                     font-size: 0.78rem;
                     font-weight: 800;
                     line-height: 1.28;
                 }
 
                 .pos-cart-price {
-                    color: #64748b;
+                    color: var(--pos-muted);
                     font-size: 0.68rem;
                     margin-top: 0.12rem;
                 }
@@ -304,7 +362,7 @@
                 .pos-cart-total {
                     font-size: 0.8rem;
                     font-weight: 800;
-                    color: #111827;
+                    color: var(--pos-text);
                     white-space: nowrap;
                 }
 
@@ -325,10 +383,10 @@
                 .pos-qty button {
                     width: 1.4rem;
                     height: 1.4rem;
-                    border: 1px solid #c6d3e2;
+                    border: 1px solid var(--pos-border);
                     border-radius: 6px;
-                    background: #fff;
-                    color: #334155;
+                    background: var(--pos-card);
+                    color: var(--pos-toolbar-text);
                     font-weight: 800;
                     cursor: pointer;
                     line-height: 1;
@@ -339,13 +397,13 @@
                     text-align: center;
                     font-size: 0.78rem;
                     font-weight: 800;
-                    color: #334155;
+                    color: var(--pos-toolbar-text);
                 }
 
                 .pos-remove {
-                    border: 1px solid #fecaca;
-                    background: #fee2e2;
-                    color: #b91c1c;
+                    border: 1px solid var(--pos-danger-soft-border);
+                    background: var(--pos-danger-soft-bg);
+                    color: var(--pos-danger);
                     border-radius: 7px;
                     padding: 0.2rem 0.43rem;
                     font-size: 0.67rem;
@@ -356,8 +414,8 @@
                 .pos-summary {
                     margin-top: 0.62rem;
                     border-radius: 10px;
-                    border: 1px solid #d8e2eb;
-                    background: #fff;
+                    border: 1px solid var(--pos-border);
+                    background: var(--pos-card);
                     padding: 0.6rem;
                 }
 
@@ -366,17 +424,17 @@
                     justify-content: space-between;
                     align-items: center;
                     font-size: 0.75rem;
-                    color: #475569;
+                    color: var(--pos-muted);
                     margin-bottom: 0.34rem;
                 }
 
                 .pos-summary-row strong {
-                    color: #0f172a;
+                    color: var(--pos-text);
                     font-size: 0.8rem;
                 }
 
                 .pos-total-row {
-                    border-top: 1px dashed #cdd9e7;
+                    border-top: 1px dashed var(--pos-dashed-border);
                     padding-top: 0.42rem;
                     margin-top: 0.2rem;
                     display: flex;
@@ -385,16 +443,24 @@
                 }
 
                 .pos-total-row span {
-                    color: #0f172a;
+                    color: var(--pos-text);
                     font-weight: 800;
                     font-size: 0.9rem;
                 }
 
                 .pos-total-row strong {
-                    color: #0f172a;
+                    color: var(--pos-text);
                     font-size: 1.22rem;
                     font-weight: 900;
                     line-height: 1.1;
+                }
+
+                .pos-outstanding {
+                    color: var(--pos-success);
+                }
+
+                .pos-outstanding.is-due {
+                    color: var(--danger-500);
                 }
 
                 .pos-pay-grid {
@@ -412,10 +478,10 @@
                 }
 
                 .pos-quick-pay button {
-                    border: 1px solid #d0daeb;
+                    border: 1px solid var(--pos-border);
                     border-radius: 8px;
-                    background: #fff;
-                    color: #334155;
+                    background: var(--pos-card);
+                    color: var(--pos-toolbar-text);
                     font-size: 0.69rem;
                     font-weight: 800;
                     padding: 0.3rem 0.52rem;
@@ -423,14 +489,14 @@
                 }
 
                 .pos-quick-pay button:hover {
-                    border-color: #9cb4d5;
-                    background: #f7fbff;
+                    border-color: var(--pos-toolbar-hover-border);
+                    background: var(--pos-toolbar-hover-bg);
                 }
 
                 .pos-quick-pay button.pos-pay-exact {
-                    border-color: #86efac;
-                    background: #dcfce7;
-                    color: #166534;
+                    border-color: var(--pos-success-soft-border);
+                    background: var(--pos-success-soft-bg);
+                    color: var(--pos-success-soft-text);
                 }
 
                 .pos-checkout {
@@ -440,7 +506,7 @@
                 .pos-disabled-note {
                     margin-top: 0.38rem;
                     text-align: center;
-                    color: #6b7280;
+                    color: var(--pos-muted);
                     font-size: 0.69rem;
                     font-weight: 600;
                 }
@@ -448,8 +514,8 @@
                 .pos-recent {
                     margin-top: 0.74rem;
                     border-radius: 10px;
-                    border: 1px solid #d8e0ea;
-                    background: #fff;
+                    border: 1px solid var(--pos-border);
+                    background: var(--pos-card);
                     padding: 0.58rem;
                 }
 
@@ -459,8 +525,8 @@
                     gap: 0.5rem;
                     align-items: center;
                     border-radius: 8px;
-                    border: 1px solid #e2e8f0;
-                    background: #f8fafc;
+                    border: 1px solid var(--pos-border);
+                    background: var(--pos-subtle-card);
                     padding: 0.44rem 0.48rem;
                 }
 
@@ -469,35 +535,35 @@
                 }
 
                 .pos-recent-id {
-                    color: #64748b;
+                    color: var(--pos-muted);
                     font-size: 0.67rem;
                     font-weight: 800;
                 }
 
                 .pos-recent-name {
-                    color: #1e293b;
+                    color: var(--pos-text);
                     font-size: 0.74rem;
                     font-weight: 800;
                     margin-bottom: 0.08rem;
                 }
 
                 .pos-recent-meta {
-                    color: #64748b;
+                    color: var(--pos-muted);
                     font-size: 0.66rem;
                 }
 
                 .pos-recent-total {
-                    color: #0f172a;
+                    color: var(--pos-text);
                     font-size: 0.74rem;
                     font-weight: 800;
                 }
 
                 .pos-empty {
-                    border: 1px dashed #cdd8e5;
+                    border: 1px dashed var(--pos-dashed-border);
                     border-radius: 8px;
                     padding: 0.88rem;
                     text-align: center;
-                    color: #64748b;
+                    color: var(--pos-muted);
                     font-size: 0.73rem;
                     font-weight: 600;
                 }
@@ -686,15 +752,15 @@
                                 <x-filament::input
                                     id="barcode-input"
                                     type="text"
-                                    wire:model.live="barcodeInput"
-                                    wire:keydown.enter.prevent="addByBarcode"
+                                    wire:model="barcodeInput"
+                                    wire:keydown.enter.prevent="addByBarcode($event.target.value)"
                                     placeholder="Scan or type barcode"
                                 />
                             </x-filament::input.wrapper>
                             <x-filament::button type="button" color="gray" wire:click="addByBarcode">Add</x-filament::button>
                         </div>
                         @error('barcodeInput')
-                            <p class="pos-small" style="color:#b91c1c;margin-top:.25rem;">{{ $message }}</p>
+                            <p class="pos-small pos-error-text">{{ $message }}</p>
                         @enderror
 
                         <div class="pos-scanner">
@@ -759,7 +825,10 @@
                             <button type="button" class="pos-pay-exact" wire:click="setPaidToNetPayable">Pay Exact</button>
                         </div>
                         @error('paid_amount')
-                            <p class="pos-small" style="color:#b91c1c;margin-top:.25rem;">{{ $message }}</p>
+                            <p class="pos-small pos-error-text">{{ $message }}</p>
+                        @enderror
+                        @error('items')
+                            <p class="pos-small pos-error-text">{{ $message }}</p>
                         @enderror
 
                         <div class="pos-summary">
@@ -781,15 +850,23 @@
                             </div>
                             <div class="pos-summary-row" style="margin-bottom:0;margin-top:.45rem;">
                                 <span>Outstanding</span>
-                                <strong style="color: {{ $this->outstanding > 0 ? '#d97706' : '#059669' }};">
+                                <strong class="pos-outstanding {{ $this->outstanding > 0 ? 'is-due' : '' }}">
                                     {{ number_format($this->outstanding, 2) }} MMK
                                 </strong>
                             </div>
                         </div>
 
                         <div class="pos-checkout">
-                            <x-filament::button type="submit" class="w-full" color="success" :disabled="! $this->canCheckout">
-                                Checkout
+                            <x-filament::button
+                                type="submit"
+                                class="w-full"
+                                color="success"
+                                :disabled="! $this->canCheckout || $this->isCheckingOut"
+                                wire:loading.attr="disabled"
+                                wire:target="checkout"
+                            >
+                                <span wire:loading.remove wire:target="checkout">Checkout</span>
+                                <span wire:loading wire:target="checkout">Processing...</span>
                             </x-filament::button>
                         </div>
 
@@ -808,10 +885,16 @@
             let scannerInterval = null;
             let scannerActive = false;
             let scannerResultLocked = false;
+            let scannerDetectionInProgress = false;
             let zxingReader = null;
             let zxingLoaderPromise = null;
             let lastPrintUrl = null;
             let lastPrintAt = 0;
+            const scannerCameraConstraints = {
+                facingMode: { ideal: 'environment' },
+                width: { ideal: 1280 },
+                height: { ideal: 720 },
+            };
 
             const scannerElements = () => ({
                 status: document.getElementById('pos-scanner-status'),
@@ -855,6 +938,11 @@
                 }
 
                 const { video } = scannerElements();
+                const activeVideoStream = video?.srcObject;
+                if (activeVideoStream && typeof activeVideoStream.getTracks === 'function') {
+                    activeVideoStream.getTracks().forEach((track) => track.stop());
+                }
+
                 if (video) {
                     video.classList.add('hidden');
                     video.srcObject = null;
@@ -862,6 +950,7 @@
 
                 scannerActive = false;
                 scannerResultLocked = false;
+                scannerDetectionInProgress = false;
                 setScannerButton();
             };
 
@@ -903,7 +992,7 @@
                         });
 
                         scannerStream = await navigator.mediaDevices.getUserMedia({
-                            video: { facingMode: { ideal: 'environment' } },
+                            video: scannerCameraConstraints,
                             audio: false,
                         });
 
@@ -915,10 +1004,19 @@
 
                         scannerInterval = setInterval(async () => {
                             try {
+                                if (scannerResultLocked || scannerDetectionInProgress) {
+                                    return;
+                                }
+
+                                if (video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
+                                    return;
+                                }
+
+                                scannerDetectionInProgress = true;
                                 const barcodes = await detector.detect(video);
                                 const detectedValue = barcodes[0]?.rawValue;
 
-                                if (!detectedValue || scannerResultLocked) {
+                                if (!detectedValue) {
                                     return;
                                 }
 
@@ -932,8 +1030,10 @@
                                 barcodeInput?.focus();
                             } catch (error) {
                                 setScannerStatus('Scanning...');
+                            } finally {
+                                scannerDetectionInProgress = false;
                             }
-                        }, 700);
+                        }, 200);
 
                         return;
                     }
@@ -960,18 +1060,14 @@
                     const ZXing = await zxingLoaderPromise;
 
                     zxingReader = new ZXing.BrowserMultiFormatReader();
-                    scannerStream = await navigator.mediaDevices.getUserMedia({
-                        video: { facingMode: { ideal: 'environment' } },
-                        audio: false,
-                    });
-
-                    video.srcObject = scannerStream;
                     video.classList.remove('hidden');
                     scannerActive = true;
                     setScannerButton();
                     setScannerStatus('Scanner started (fallback mode). Point camera to barcode.');
 
-                    await zxingReader.decodeFromVideoDevice(undefined, video, async (result, error) => {
+                    await zxingReader.decodeFromConstraints({
+                        video: scannerCameraConstraints,
+                    }, video, async (result, error) => {
                         if (scannerResultLocked) {
                             return;
                         }

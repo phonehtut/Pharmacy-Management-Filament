@@ -25,6 +25,7 @@ class ReturnPurchaseAction
             ->modalDescription('Select an item from this purchase and enter quantity to return.')
             ->form([
                 Select::make('purchase_item_id')
+                    ->native(false)
                     ->label('Purchase Item')
                     ->required()
                     ->searchable()

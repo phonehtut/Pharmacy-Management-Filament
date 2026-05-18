@@ -14,11 +14,13 @@ class PurchaseForm
         return $schema
             ->components([
                 Select::make('supplier_id')
+                    ->native(false)
                     ->relationship('supplier', 'name')
                     ->required()
                     ->searchable()
                     ->preload(),
                 Select::make('branch_id')
+                    ->native(false)
                     ->relationship('branch', 'name')
                     ->required()
                     ->searchable()

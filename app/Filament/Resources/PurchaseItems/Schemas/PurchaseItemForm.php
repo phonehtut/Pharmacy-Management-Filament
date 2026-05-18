@@ -18,12 +18,14 @@ class PurchaseItemForm
         return $schema
             ->components([
                 Select::make('purchase_id')
+                    ->native(false)
                     ->relationship('purchase', 'invoice_no')
                     ->required()
                     ->live()
                     ->searchable()
                     ->preload(),
                 Select::make('medicine_id')
+                    ->native(false)
                     ->relationship('medicine', 'name')
                     ->required()
                     ->live()

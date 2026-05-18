@@ -13,11 +13,13 @@ class StockMovementForm
         return $schema
             ->components([
                 Select::make('medicine_id')
+                    ->native(false)
                     ->relationship('medicine', 'name')
                     ->required()
                     ->searchable()
                     ->preload(),
                 Select::make('type')
+                    ->native(false)
                     ->required()
                     ->options([
                         'in' => 'In',
@@ -29,6 +31,7 @@ class StockMovementForm
                     ->numeric()
                     ->minValue(1),
                 Select::make('reference')
+                    ->native(false)
                     ->options([
                         'purchase' => 'Purchase',
                         'sale' => 'Sale',

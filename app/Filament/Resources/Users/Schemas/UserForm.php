@@ -21,11 +21,13 @@ class UserForm
                     ->maxLength(255)
                     ->unique(ignoreRecord: true),
                 Select::make('branch_id')
+                    ->native(false)
                     ->relationship('branch', 'name')
                     ->required()
                     ->searchable()
                     ->preload(),
                 Select::make('role')
+                    ->native(false)
                     ->required()
                     ->options([
                         'admin' => 'Admin',

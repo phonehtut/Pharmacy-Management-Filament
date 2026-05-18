@@ -20,6 +20,7 @@ class MedicineForm
                     ->required()
                     ->maxLength(255),
                 Select::make('category_id')
+                    ->native(false)
                     ->relationship('category', 'name')
                     ->required()
                     ->searchable()
@@ -31,6 +32,7 @@ class MedicineForm
                     ->required()
                     ->maxLength(255),
                 Select::make('dosage_form')
+                    ->native(false)
                     ->label('Type')
                     ->options([
                         'tablet' => 'Tablet',

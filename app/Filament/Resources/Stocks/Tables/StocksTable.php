@@ -15,8 +15,8 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Select as FormSelect;
-use Filament\Forms\Components\TextInput as FormTextInput;
 use Filament\Forms\Components\Textarea as FormTextarea;
+use Filament\Forms\Components\TextInput as FormTextInput;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
@@ -82,6 +82,7 @@ class StocksTable
                     ->visible(fn (Stock $record): bool => (int) $record->quantity > 0)
                     ->form([
                         FormSelect::make('to_branch_id')
+                            ->native(false)
                             ->label('Transfer To Branch')
                             ->required()
                             ->searchable()
@@ -127,6 +128,7 @@ class StocksTable
                         ->deselectRecordsAfterCompletion()
                         ->form([
                             FormSelect::make('supplier_id')
+                                ->native(false)
                                 ->label('Supplier')
                                 ->required()
                                 ->searchable()

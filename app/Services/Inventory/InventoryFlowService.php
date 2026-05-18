@@ -78,7 +78,7 @@ class InventoryFlowService
                 ->where('medicine_id', (int) $lockedSource->medicine_id)
                 ->where('branch_id', $toBranchId)
                 ->where('batch_no', $batchNo)
-                ->whereDate('expiry_date', $expiryDate)
+                ->where('expiry_date', $expiryDate)
                 ->lockForUpdate()
                 ->first();
 
@@ -581,7 +581,7 @@ class InventoryFlowService
             ->where('medicine_id', $medicineId)
             ->where('branch_id', $branchId)
             ->where('batch_no', $batchNo)
-            ->whereDate('expiry_date', Carbon::parse($expiryDate)->toDateString());
+            ->where('expiry_date', Carbon::parse($expiryDate)->toDateString());
 
         if ($forUpdate) {
             $query->lockForUpdate();
@@ -600,7 +600,7 @@ class InventoryFlowService
         $query = Stock::query()
             ->where('medicine_id', $medicineId)
             ->where('branch_id', $branchId)
-            ->whereDate('expiry_date', '>=', today());
+            ->where('expiry_date', '>=', today()->toDateString());
 
         if ($onlyPositiveQuantity) {
             $query->where('quantity', '>', 0);

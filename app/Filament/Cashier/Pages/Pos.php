@@ -3,6 +3,7 @@
 namespace App\Filament\Cashier\Pages;
 
 use App\Models\Customer;
+use App\Models\Medicine;
 use App\Models\Sale;
 use App\Models\Stock;
 use BackedEnum;
@@ -41,6 +42,8 @@ class Pos extends Page
     public float $tax = 0;
 
     public float $paid_amount = 0;
+
+    public bool $isCheckingOut = false;
 
     /**
      * @var array<int, array{medicine_id: int|null, batch_no: string|null, quantity: int, price: float}>
@@ -117,36 +120,12 @@ class Pos extends Page
             return;
         }
 
-        foreach ($this->items as $index => $item) {
-            if (((int) ($item['medicine_id'] ?? 0) === $medicineId) && (($item['batch_no'] ?? null) === $stock->batch_no)) {
-                $this->items[$index]['quantity'] = max(1, (int) $item['quantity']) + 1;
-
-                return;
-            }
-        }
-
-        if ((count($this->items) === 1) && blank($this->items[0]['medicine_id'])) {
-            $this->items[0] = [
-                'medicine_id' => $medicineId,
-                'batch_no' => $stock->batch_no,
-                'quantity' => 1,
-                'price' => (float) $stock->sell_price,
-            ];
-
-            return;
-        }
-
-        $this->items[] = [
-            'medicine_id' => $medicineId,
-            'batch_no' => $stock->batch_no,
-            'quantity' => 1,
-            'price' => (float) $stock->sell_price,
-        ];
+        $this->appendStockToCart($stock);
     }
 
     public function addByBarcode(?string $barcode = null): void
     {
-        $resolvedBarcode = trim((string) ($barcode ?? $this->barcodeInput));
+        $resolvedBarcode = $this->normalizeBarcodeInput((string) ($barcode ?? $this->barcodeInput));
 
         if ($resolvedBarcode === '') {
             return;
@@ -154,12 +133,11 @@ class Pos extends Page
 
         $stock = Stock::query()
             ->where('branch_id', $this->getTenantBranchId())
-            ->whereDate('expiry_date', '>=', today())
+            ->where('expiry_date', '>=', today()->toDateString())
             ->where('quantity', '>', 0)
             ->whereHas('medicine', function ($query) use ($resolvedBarcode): void {
                 $query->where('barcode', $resolvedBarcode);
             })
-            ->with('medicine')
             ->orderBy('expiry_date')
             ->orderBy('id')
             ->first();
@@ -178,11 +156,20 @@ class Pos extends Page
 
         $this->resetErrorBag('barcodeInput');
         $this->barcodeInput = '';
-        $this->addProductToCart((int) $stock->medicine_id);
+        $this->appendStockToCart($stock);
+    }
+
+    private function normalizeBarcodeInput(string $barcode): string
+    {
+        return preg_replace('/\s+/u', '', trim($barcode)) ?? '';
     }
 
     public function checkout(): void
     {
+        if ($this->isCheckingOut) {
+            return;
+        }
+
         $this->validate([
             'customer_id' => ['nullable', 'exists:customers,id'],
             'discount' => ['required', 'numeric', 'min:0'],
@@ -195,6 +182,14 @@ class Pos extends Page
             'items.*.price' => ['nullable', 'numeric', 'min:0'],
         ]);
 
+        $normalizedItems = $this->normalizeCheckoutItems();
+
+        if ($normalizedItems === []) {
+            $this->addError('items', 'Please add at least one valid item to checkout.');
+
+            return;
+        }
+
         $subtotal = $this->calculateSubtotal();
         $netPayable = max(0, $subtotal - $this->discount + $this->tax);
         $changeAmount = max(0, $this->paid_amount - $netPayable);
@@ -206,9 +201,10 @@ class Pos extends Page
         }
 
         $createdSaleId = null;
+        $this->isCheckingOut = true;
 
         try {
-            DB::transaction(function () use ($subtotal, $changeAmount, &$createdSaleId): void {
+            DB::transaction(function () use ($subtotal, $changeAmount, $normalizedItems, &$createdSaleId): void {
                 $user = Auth::user();
                 $branchId = $this->getTenantBranchId();
 
@@ -225,23 +221,12 @@ class Pos extends Page
                 ]);
                 $createdSaleId = (int) $sale->getKey();
 
-                foreach ($this->items as $index => $item) {
-                    $stock = $this->resolveStock(
-                        medicineId: (int) $item['medicine_id'],
-                        batchNo: $item['batch_no'],
-                    );
-
-                    if (! $stock) {
-                        throw ValidationException::withMessages([
-                            "items.{$index}.batch_no" => 'No stock found for the selected medicine in this branch.',
-                        ]);
-                    }
-
+                foreach ($normalizedItems as $item) {
                     $sale->items()->create([
                         'medicine_id' => (int) $item['medicine_id'],
-                        'batch_no' => (string) $stock->batch_no,
+                        'batch_no' => filled($item['batch_no']) ? (string) $item['batch_no'] : '',
                         'quantity' => max(1, (int) $item['quantity']),
-                        'price' => ((float) ($item['price'] ?? 0)) > 0 ? (float) $item['price'] : (float) $stock->sell_price,
+                        'price' => max(0, (float) ($item['price'] ?? 0)),
                     ]);
                 }
             }, attempts: 3);
@@ -259,6 +244,8 @@ class Pos extends Page
                 ->send();
 
             return;
+        } finally {
+            $this->isCheckingOut = false;
         }
 
         $this->resetForm();
@@ -301,30 +288,29 @@ class Pos extends Page
     public function getMedicineOptions(): array
     {
         return Stock::query()
-            ->with('medicine')
+            ->join('medicines', 'medicines.id', '=', 'stocks.medicine_id')
             ->where('branch_id', $this->getTenantBranchId())
-            ->whereDate('expiry_date', '>=', today())
+            ->where('expiry_date', '>=', today()->toDateString())
             ->where('quantity', '>', 0)
-            ->orderBy('medicine_id')
+            ->groupBy('stocks.medicine_id', 'medicines.name')
+            ->orderBy('medicines.name')
             ->get()
-            ->pluck('medicine.name', 'medicine_id')
+            ->pluck('medicines.name', 'stocks.medicine_id')
             ->toArray();
     }
 
     public function getCategoryOptions(): array
     {
         return Stock::query()
-            ->where('branch_id', $this->getTenantBranchId())
-            ->whereDate('expiry_date', '>=', today())
+            ->join('medicines', 'medicines.id', '=', 'stocks.medicine_id')
+            ->join('categories', 'categories.id', '=', 'medicines.category_id')
+            ->where('stocks.branch_id', $this->getTenantBranchId())
+            ->where('stocks.expiry_date', '>=', today()->toDateString())
             ->where('quantity', '>', 0)
-            ->whereHas('medicine.category')
-            ->with('medicine.category')
-            ->get()
-            ->pluck('medicine.category.name')
-            ->filter()
-            ->unique()
-            ->sort()
-            ->values()
+            ->select('categories.name')
+            ->distinct()
+            ->orderBy('categories.name')
+            ->pluck('categories.name')
             ->all();
     }
 
@@ -333,41 +319,51 @@ class Pos extends Page
      */
     public function getProductCatalog(): array
     {
-        return Stock::query()
-            ->where('branch_id', $this->getTenantBranchId())
-            ->whereDate('expiry_date', '>=', today())
-            ->where('quantity', '>', 0)
-            ->whereHas('medicine', function ($query): void {
-                $query
-                    ->when($this->productSearch !== '', function ($searchQuery): void {
-                        $searchQuery->where(function ($nestedQuery): void {
-                            $nestedQuery
-                                ->where('name', 'like', '%'.$this->productSearch.'%')
-                                ->orWhere('generic_name', 'like', '%'.$this->productSearch.'%')
-                                ->orWhere('barcode', 'like', '%'.$this->productSearch.'%');
-                        });
-                    })
-                    ->when($this->selectedCategory !== 'all', function ($categoryQuery): void {
-                        $categoryQuery->whereHas('category', fn ($query): mixed => $query->where('name', $this->selectedCategory));
-                    });
-            })
-            ->with(['medicine.category'])
-            ->get()
-            ->groupBy('medicine_id')
-            ->map(function ($stocks): array {
-                $firstStock = $stocks->sortBy('expiry_date')->first();
-                $medicine = $firstStock?->medicine;
+        $search = trim($this->productSearch);
 
+        return Stock::query()
+            ->join('medicines', 'medicines.id', '=', 'stocks.medicine_id')
+            ->leftJoin('categories', 'categories.id', '=', 'medicines.category_id')
+            ->where('stocks.branch_id', $this->getTenantBranchId())
+            ->where('stocks.expiry_date', '>=', today()->toDateString())
+            ->where('quantity', '>', 0)
+            ->when($search !== '', function ($query) use ($search): void {
+                $query->where(function ($searchQuery) use ($search): void {
+                    $searchQuery
+                        ->where('medicines.name', 'like', '%'.$search.'%')
+                        ->orWhere('medicines.generic_name', 'like', '%'.$search.'%')
+                        ->orWhere('medicines.barcode', 'like', '%'.$search.'%');
+                });
+            })
+            ->when($this->selectedCategory !== 'all', function ($query): void {
+                $query->where('categories.name', $this->selectedCategory);
+            })
+            ->groupBy(
+                'stocks.medicine_id',
+                'medicines.name',
+                'medicines.barcode',
+                'categories.name',
+            )
+            ->select([
+                'stocks.medicine_id',
+                'medicines.name',
+                'medicines.barcode',
+                'categories.name as category_name',
+            ])
+            ->selectRaw('MIN(stocks.sell_price) as sell_price')
+            ->selectRaw('SUM(stocks.quantity) as stock_quantity')
+            ->orderBy('medicines.name')
+            ->get()
+            ->map(function ($product): array {
                 return [
-                    'medicine_id' => (int) $firstStock?->medicine_id,
-                    'name' => (string) ($medicine?->name ?? 'Unknown'),
-                    'barcode' => (string) ($medicine?->barcode ?? '-'),
-                    'category' => (string) ($medicine?->category?->name ?? 'Uncategorized'),
-                    'sell_price' => (float) ($firstStock?->sell_price ?? 0),
-                    'stock' => (int) $stocks->sum('quantity'),
+                    'medicine_id' => (int) $product->medicine_id,
+                    'name' => (string) $product->name,
+                    'barcode' => (string) ($product->barcode ?? '-'),
+                    'category' => (string) ($product->category_name ?: 'Uncategorized'),
+                    'sell_price' => (float) $product->sell_price,
+                    'stock' => (int) $product->stock_quantity,
                 ];
             })
-            ->sortBy('name')
             ->values()
             ->all();
     }
@@ -377,11 +373,16 @@ class Pos extends Page
      */
     public function getCartItemsForDisplay(): array
     {
-        $medicineNames = Stock::query()
-            ->whereIn('medicine_id', collect($this->items)->pluck('medicine_id')->filter()->all())
-            ->with('medicine')
-            ->get()
-            ->pluck('medicine.name', 'medicine_id');
+        $medicineIds = collect($this->items)
+            ->pluck('medicine_id')
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        $medicineNames = Medicine::query()
+            ->whereIn('id', $medicineIds)
+            ->pluck('name', 'id');
 
         return collect($this->items)
             ->map(function (array $item, int $index) use ($medicineNames): ?array {
@@ -439,9 +440,11 @@ class Pos extends Page
         return Stock::query()
             ->where('branch_id', $this->getTenantBranchId())
             ->where('medicine_id', $medicineId)
-            ->whereDate('expiry_date', '>=', today())
+            ->where('expiry_date', '>=', today()->toDateString())
             ->where('quantity', '>', 0)
-            ->orderBy('expiry_date')
+            ->select('batch_no')
+            ->distinct()
+            ->orderBy('batch_no')
             ->pluck('batch_no', 'batch_no')
             ->all();
     }
@@ -520,7 +523,7 @@ class Pos extends Page
         $query = Stock::query()
             ->where('branch_id', $this->getTenantBranchId())
             ->where('medicine_id', $medicineId)
-            ->whereDate('expiry_date', '>=', today())
+            ->where('expiry_date', '>=', today()->toDateString())
             ->where('quantity', '>', 0);
 
         if (filled($batchNo)) {
@@ -538,6 +541,65 @@ class Pos extends Page
         return round(collect($this->items)->sum(function (array $item): float {
             return max(1, (int) ($item['quantity'] ?? 1)) * max(0, (float) ($item['price'] ?? 0));
         }), 2);
+    }
+
+    /**
+     * @return array<int, array{medicine_id: int, batch_no: string|null, quantity: int, price: float}>
+     */
+    private function normalizeCheckoutItems(): array
+    {
+        return collect($this->items)
+            ->filter(fn (array $item): bool => filled($item['medicine_id']))
+            ->map(function (array $item): array {
+                return [
+                    'medicine_id' => (int) $item['medicine_id'],
+                    'batch_no' => filled($item['batch_no']) ? (string) $item['batch_no'] : null,
+                    'quantity' => max(1, (int) ($item['quantity'] ?? 1)),
+                    'price' => max(0, (float) ($item['price'] ?? 0)),
+                ];
+            })
+            ->groupBy(fn (array $item): string => $item['medicine_id'].'|'.($item['batch_no'] ?? ''))
+            ->map(function ($lineItems): array {
+                $firstItem = $lineItems->first();
+
+                return [
+                    'medicine_id' => (int) $firstItem['medicine_id'],
+                    'batch_no' => $firstItem['batch_no'],
+                    'quantity' => (int) $lineItems->sum('quantity'),
+                    'price' => (float) $firstItem['price'],
+                ];
+            })
+            ->values()
+            ->all();
+    }
+
+    private function appendStockToCart(Stock $stock): void
+    {
+        foreach ($this->items as $index => $item) {
+            if (((int) ($item['medicine_id'] ?? 0) === (int) $stock->medicine_id) && (($item['batch_no'] ?? null) === $stock->batch_no)) {
+                $this->items[$index]['quantity'] = max(1, (int) $item['quantity']) + 1;
+
+                return;
+            }
+        }
+
+        if ((count($this->items) === 1) && blank($this->items[0]['medicine_id'])) {
+            $this->items[0] = [
+                'medicine_id' => (int) $stock->medicine_id,
+                'batch_no' => (string) $stock->batch_no,
+                'quantity' => 1,
+                'price' => (float) $stock->sell_price,
+            ];
+
+            return;
+        }
+
+        $this->items[] = [
+            'medicine_id' => (int) $stock->medicine_id,
+            'batch_no' => (string) $stock->batch_no,
+            'quantity' => 1,
+            'price' => (float) $stock->sell_price,
+        ];
     }
 
     /**

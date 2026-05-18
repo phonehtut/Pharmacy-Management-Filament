@@ -29,6 +29,7 @@ class ItemsRelationManager extends RelationManager
         return $schema
             ->components([
                 Select::make('medicine_id')
+                    ->native(false)
                     ->relationship('medicine', 'name')
                     ->required()
                     ->live()

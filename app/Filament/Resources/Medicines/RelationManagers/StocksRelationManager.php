@@ -26,6 +26,7 @@ class StocksRelationManager extends RelationManager
         return $schema
             ->components([
                 Select::make('branch_id')
+                    ->native(false)
                     ->relationship('branch', 'name')
                     ->required()
                     ->searchable()

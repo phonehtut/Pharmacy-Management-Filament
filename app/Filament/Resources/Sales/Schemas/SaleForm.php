@@ -16,16 +16,19 @@ class SaleForm
         return $schema
             ->components([
                 Select::make('branch_id')
+                    ->native(false)
                     ->relationship('branch', 'name')
                     ->required()
                     ->searchable()
                     ->preload(),
                 Select::make('user_id')
+                    ->native(false)
                     ->relationship('user', 'name')
                     ->required()
                     ->searchable()
                     ->preload(),
                 Select::make('customer_id')
+                    ->native(false)
                     ->relationship('customer', 'name')
                     ->searchable()
                     ->preload(),

@@ -25,6 +25,7 @@ class ReturnSaleAction
             ->modalDescription('Select an item from this sale and enter quantity to return.')
             ->form([
                 Select::make('sale_item_id')
+                    ->native(false)
                     ->label('Sale Item')
                     ->required()
                     ->searchable()
